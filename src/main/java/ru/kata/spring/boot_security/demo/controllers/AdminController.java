@@ -71,7 +71,7 @@ public class AdminController {
         user.setDepartment(department);
         user.setEmail(email);
         if (password != null && !password.isEmpty()) {
-            user.setPassword(password); // Пароль остается как есть
+            user.setPassword(password);
         }
         user.setRoles(mapRoleNamesToRoles(selectedRoles));
         userService.saveUser(user);
