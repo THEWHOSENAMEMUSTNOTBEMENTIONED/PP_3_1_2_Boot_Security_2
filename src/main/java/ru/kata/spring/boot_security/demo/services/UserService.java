@@ -12,4 +12,5 @@ public interface UserService {
     void deleteById(int id);
     List<Role> getAllRoles();
     Role findRoleByName(String roleName);
+    void updateUser(User user); // Н
 }

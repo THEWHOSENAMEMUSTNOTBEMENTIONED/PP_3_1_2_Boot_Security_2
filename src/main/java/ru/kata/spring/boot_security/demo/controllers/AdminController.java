@@ -17,7 +17,7 @@ import java.util.Set;
 public class AdminController {
 
     private final UserService userService;
-    final UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public AdminController(UserService userService, UserRepository userRepository) {
@@ -47,35 +47,21 @@ public class AdminController {
         return "redirect:/admin/all-users";
     }
 
-    @GetMapping("/admin/user-delete")
-    public String deleteUser(@RequestParam("id") int id) {
+    @DeleteMapping("/admin/user-delete/{id}")
+    public String deleteUser(@PathVariable("id") int id) {
         userService.deleteById(id);
         return "redirect:/admin/all-users";
     }
 
     @PostMapping("/admin/user-update")
-    public String updateUser(
-            @RequestParam("id") int id,
-            @RequestParam("username") String username,
-            @RequestParam("surname") String surname,
-            @RequestParam("department") String department,
-            @RequestParam("email") String email,
-            @RequestParam(value = "password", required = false) String password,
-            @RequestParam("selectedRoles") List<String> selectedRoles) {
-        User user = userService.findById(id);
-        if (user == null) {
+    public String updateUser(@ModelAttribute User user, @RequestParam("selectedRoles") List<String> selectedRoles) {
+        try {
+            user.setRoles(mapRoleNamesToRoles(selectedRoles));
+            userService.updateUser(user);
             return "redirect:/admin/all-users";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/admin/all-users?error=user_not_found";
         }
-        user.setUsername(username);
-        user.setSurname(surname);
-        user.setDepartment(department);
-        user.setEmail(email);
-        if (password != null && !password.isEmpty()) {
-            user.setPassword(password);
-        }
-        user.setRoles(mapRoleNamesToRoles(selectedRoles));
-        userService.saveUser(user);
-        return "redirect:/admin/all-users";
     }
 
     private Set<Role> mapRoleNamesToRoles(List<String> roleNames) {
